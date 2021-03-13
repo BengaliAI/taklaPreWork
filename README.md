@@ -108,7 +108,7 @@ The execution saves a **.json** file under **temp** folder within the same direc
     container['type']       =   get_comment_type(comment) # reply / comment
 ```
 
-## TODO
+### TODO
 - [ ] format group scrapper base to : m.facebook.com (_avoid new look implementation for LTS_)
 - [ ] same format for data saing
 
@@ -123,7 +123,7 @@ The execution saves a **.json** file under **temp** folder within the same direc
 * The [DataSet](https://www.kaggle.com/nazmuddhohaansary/bangla-dataset-for-takla) contains: 101 csv files with a text column and 10000 text data per csv
 * A sample **sentence based division and dataEDA kernel** where a single file of 10000 rows of data creates **124003** rows of sentences/ phrases is available [here](https://www.kaggle.com/nazmuddhohaansary/datasetedasinglefile)
 
-### TODO:(depends om the parser)
+### TODO:(depends on the parser)
 - [ ] word separation 
 - [ ] grapheme division based on word separation
 
