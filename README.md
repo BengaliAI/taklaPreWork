@@ -2,7 +2,6 @@
 "Takla" dataset Generation and Collection
 ```python
 Version: 0.0.1     
-Authors: Md. Nazmuddoha Ansary
 ```
 **LOCAL ENVIRONMENT**  
 ```python
@@ -120,12 +119,12 @@ The execution saves a **.json** file under **temp** folder within the same direc
 * [Bangla Newspaper Dataset:400k+ bangla news samples](https://www.kaggle.com/furcifer/bangla-newspaper-dataset)
 * [40k Bangla Newspaper Article](https://www.kaggle.com/zshujon/40k-bangla-newspaper-article)
 
-* The [DataSet](https://www.kaggle.com/nazmuddhohaansary/bangla-dataset-for-takla) contains: 101 csv files with a text column and 10000 text data per csv
+* The [DataSet](https://www.kaggle.com/nazmuddhohaansary/taklagraphemes) contains: 101 csv files with a text column and 10000 text data per csv
 * A sample **sentence based division and dataEDA kernel** where a single file of 10000 rows of data creates **124003** rows of sentences/ phrases is available [here](https://www.kaggle.com/nazmuddhohaansary/datasetedasinglefile)
 
 ### TODO:(depends on the parser)
-- [ ] word separation 
-- [ ] grapheme division based on word separation
+- [x] word separation 
+- [x] grapheme division based on word separation
 
 # Murad Takla
 * **“Pure Banglish”**= phonetically correct romanization
