@@ -1,3 +1,5 @@
+# related resources
+For a collection of related resources in takla research [click here](https://docs.google.com/spreadsheets/d/1ntJRkiRoVro24c1Hp3Zpejx9LRum9EQ94qlJYA-ipy4/edit?usp=sharing) 
 # taklaPreWork
 "Takla" dataset Generation and Collection
 ```python
