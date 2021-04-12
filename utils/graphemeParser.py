@@ -60,9 +60,12 @@ class GraphemeParser():
         # 4. Consonant diacritics sits in front of vowel diacritics.
             # In case of '্র্য', '্র' comes before '্য', in case of 'র্য', 'র্'
             # comes before root and '্য' is placed after root
+        # Note: ro-fola is part of consonant conjunct
+        # Note: '্র' == ['্', 'র']
+        # Note: 'র্্র' == ['র', '্', '্', 'র'] no visual difference with rofola
 
         # pseudo code
-        # Does it have 'র্' or 'র্য'?
+        # Does it have 'র্' or 'র্য' or 'র্্র'?
             # place 'র্' in front and then place root.
         # else:
             # place root
@@ -78,14 +81,16 @@ class GraphemeParser():
         # Is there vowel diacritic?
             # place it
         uc_sequenced = []
-        # print(comps)
-        if comps[2] in ['র্' , 'র্য',  'র্্র']:
-            uc_sequenced.append('র্')
+        # deal with ref first
+        if comps[2] in ['র্' , 'র্য', 'র্্র']:
+            uc_sequenced.append('র্') # add 
             uc_sequenced.append(comps[0])
             # if comps[2] ==  'র্্র':
             #     uc_sequenced.append('্র')
         else:
             uc_sequenced.append(comps[0])
+            
+        # special care for combination of ref+jofola
         if comps[2] != '0':
             if comps[2] == '্র্য' or comps[2] == 'র্য':
                 if comps[2] == '্র্য':
@@ -93,15 +98,20 @@ class GraphemeParser():
                     uc_sequenced.append('্য')
                 if comps[2] == 'র্য':
                     uc_sequenced.append('্য')
-            elif comps[2] ==  'র্্র':
+            elif comps[2] ==  'র্্র': # ref+rofola
                  uc_sequenced.append('্র')
+            elif comps[2] == '্যঁ':
+                 uc_sequenced.append('্য')
+           
             else:
-                if comps[2] != 'র্' and comps[2] != 'ঁ':
+                if comps[2] not in ['র্', 'ঁ']: 
+                    # i.e. comps[2] in ['্য', ref ]
                     uc_sequenced.append(comps[2])
         if comps[1] != '0':
             uc_sequenced.append(comps[1])
-        if comps[2] == 'ঁ':
+        if 'ঁ' in comps[2]:
             uc_sequenced.append('ঁ')
+        # handling '্যঁ'
         # print(uc_sequenced)
         return uc_sequenced
 
