@@ -92,21 +92,27 @@ class GraphemeParser():
             
         # special care for combination of ref+jofola
         if comps[2] != '0':
-            if comps[2] == '্র্য' or comps[2] == 'র্য':
-                if comps[2] == '্র্য':
-                    uc_sequenced.append('্র')
-                    uc_sequenced.append('্য')
-                if comps[2] == 'র্য':
-                    uc_sequenced.append('্য')
-            elif comps[2] ==  'র্্র': # ref+rofola
-                 uc_sequenced.append('্র')
-            elif comps[2] == '্যঁ':
-                 uc_sequenced.append('্য')
+            if '্র' in comps[2]:
+                uc_sequenced.append('্র')
+            
+            if '্য' in comps[2]:
+                uc_sequenced.append('্য')
+            
+#             if comps[2] == '্র্য' or comps[2] == 'র্য':
+#                 if comps[2] == '্র্য':
+#                     uc_sequenced.append('্র')
+#                     uc_sequenced.append('্য')
+#                 if comps[2] == 'র্য':
+#                     uc_sequenced.append('্য')
+#             elif comps[2] ==  'র্্র': # ref+rofola
+#                  uc_sequenced.append('্র') # ro-fola
+#             elif comps[2] == '্যঁ':
+#                  uc_sequenced.append('্য')
            
-            else:
-                if comps[2] not in ['র্', 'ঁ']: 
-                    # i.e. comps[2] in ['্য', ref ]
-                    uc_sequenced.append(comps[2])
+#             else:
+#                 if comps[2] not in ['র্', 'ঁ']: 
+#                     # i.e. comps[2] in ['্য', etc.]
+#                     uc_sequenced.append(comps[2])
         if comps[1] != '0':
             uc_sequenced.append(comps[1])
         if 'ঁ' in comps[2]:
