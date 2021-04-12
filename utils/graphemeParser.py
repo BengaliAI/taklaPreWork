@@ -158,10 +158,12 @@ class GraphemeParser():
                 else:
                     root += grapheme[i]
 
-            elif grapheme[i] in self.vds: # deal with vowels
+            elif grapheme[i] in self.vds: # deal with vds
                 vd += grapheme[i]
+            elif grapheme[i] in self.cds: # deal with cds but at this point there should only be 'ঁ' left
+                cd += grapheme[i]
             else:
-                print('Out of dictionary symbol encountered', grapheme[i].encode('utf-8'))
+                print('Out of dictionary symbol encountered: ', grapheme[i])
             i += 1
 
         # print(root, vd, cd)
