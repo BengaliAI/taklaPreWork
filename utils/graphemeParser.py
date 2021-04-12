@@ -165,7 +165,10 @@ class GraphemeParser():
             else:
                 print('Out of dictionary symbol encountered: ', grapheme[i])
             i += 1
-
+            
+        #squeeze duplicate hoshonoto 'র', '্', '্', 'য'
+        if cd == ''.join(['র', '্', '্', 'য']):
+            cd = ''.join(['র', '্', 'য'])
         # print(root, vd, cd)
         return root, vd, cd
 
