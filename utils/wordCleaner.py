@@ -12,74 +12,42 @@ import pandas as pd
 # cleaner class
 #-------------------------------------------
 class WordCleaner(object):
-    def __init__(self,class_map_csv):
-        # gets class map
-        self.class_map_csv=class_map_csv
-        # initializes components
-        self.__getComps()
+    def __init__(self):
+        # comps    
+        self.vds    =['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ']
+        self.cds    =['ঁ', 'র্', 'র্য', '্য', '্র', '্র্য', 'র্্র']
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
         
-    def __getComps(self):
+    def __replaceBroken(self):
         '''
-            **Private Initialization**
+            case: replace broken diacritic 
+                # Example-1: 
+                (a)'আরো'==(b)'আরো' ->  False 
+                    (a) breaks as:['আ', 'র', 'ে', 'া']
+                    (b) breaks as:['আ', 'র', 'ো']
+                # Example-2:
+                (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
+                    (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
+                    (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
+            
+        '''
+        # broken vowel diacritic
+        # e-kar+a-kar = o-kar
+        self.word = self.word.replace('ে'+'া', 'ো')
+        # e-kar+e-kar = ou-kar
+        self.word = self.word.replace('ে'+'ৗ', 'ৌ')
 
-            reads and creates dataframe for roots,consonant_diacritic,vowel_diacritic and graphemes 
-            args:
-                class_map_csv        : path of classes.csv
-            returns:
-                tuple(df_root,df_vd,df_cd)
-                df_root          :     dataframe for grapheme roots
-                df_vd            :     dataframe for vowel_diacritic 
-                df_cd            :     dataframe for consonant_diacritic
-                
-        '''
-        # read class map
-        df_map=pd.read_csv(self.class_map_csv)
-        # get grapheme roots
-        df_root = df_map.groupby('component_type').get_group('grapheme_root')
-        df_root.index = df_root['label']
-        df_root = df_root.drop(columns = ['label','component_type'])
-        # get vowel_diacritic
-        df_vd = df_map.groupby('component_type').get_group('vowel_diacritic')
-        df_vd.index = df_vd['label']
-        df_vd = df_vd.drop(columns = ['label','component_type'])
-        # get consonant_diacritic
-        df_cd = df_map.groupby('component_type').get_group('consonant_diacritic')
-        df_cd.index = df_cd['label']
-        df_cd = df_cd.drop(columns = ['label','component_type'])
+    def __createDecomp(self):
+        # remove non-bengali unicode
+        start   = 0x0980
+        end     = 0x09E5
         
-        self.vds    =df_vd.component.tolist()
-        self.cds    =df_cd.component.tolist()
-        self.roots  =df_root.component.tolist()
-
-
-    def __cleanNumbers(self):
-        '''
-            cleans numbers from a given word
-        '''
-        nms=['১','২','৩','৪','৫','৬','৭','৮','৯','০']
-        for num in nms:
-            if num in self.word:
-                self.word=self.word.replace(num,"")
-        # none case
-        if not self.word.strip():
-            self.return_none=True
-         
-
-    def __cleanNonBengali(self):
-        '''
-            cleans non-bengali symbols
-        '''
-        
-        # this is to filter non-bengali chars
-        self.decomp=regex.findall(r"[\p{Bengali}]",self.word)
-        # none case
+        self.word = ''.join([s for s in self.word if (ord(s) >= start and ord(s)<=end) or s =='\u200d'])
+        self.decomp=[ch for ch in self.word]
         if not self.__checkDecomp():
             self.return_none=True
 
-    
-    
     def __checkDecomp(self):
         '''
             checks if the decomp has a valid length
@@ -200,31 +168,12 @@ class WordCleaner(object):
         else:
             return False
         
-    def __replaceBroken(self):
-        '''
-            case: replace broken diacritic 
-                # Example-1: 
-                (a)'আরো'==(b)'আরো' ->  False 
-                    (a) breaks as:['আ', 'র', 'ে', 'া']
-                    (b) breaks as:['আ', 'র', 'ো']
-                # Example-2:
-                (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
-                    (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
-                    (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
-            
-        '''
-        # broken vowel diacritic
-        # e-kar+a-kar = o-kar
-        self.word = self.word.replace('ে'+'া', 'ো')
-        # e-kar+e-kar = ou-kar
-        self.word = self.word.replace('ে'+'ৗ', 'ৌ')
-
+    
     def clean(self,word):
         '''
             cleans a given word
             * handles broken diacritics
-            * removes numbers
-            * removes non-bengali symbols
+            * removes numbers and non-bengali symbols
             * removes invalid starter symbols
             * removes invalid ending symbols
             * removes consecutive doubles of vds and cds
@@ -233,21 +182,14 @@ class WordCleaner(object):
         if not isinstance(word, str):
             raise TypeError("The provided argument/ word is not a string") 
         self.word=word
-
         # None-flag
         self.return_none = False
         # replace broken 
         self.__replaceBroken()
-        # messy checks--> needs better replacement
-        self.__cleanNumbers()
+        # create clean decomp
+        self.__createDecomp()
         if self.return_none:
             return None
-
-
-        self.__cleanNonBengali()
-        if self.return_none:
-            return None
-        
         
         # list of operations
         ops=[self.__cleanInvalidEnds,

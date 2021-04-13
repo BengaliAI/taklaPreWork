@@ -8,15 +8,8 @@ from __future__ import print_function
 #-------------------------------------------
 import os 
 import unittest
-from wordCleaner import WordCleaner
-#-------------------------------------------
-# global ops
-#-------------------------------------------
-# path to class map
-class_map_csv=os.path.join(os.getcwd(),"class_map.csv")
-# initialize word cleaner
-WC=WordCleaner(class_map_csv) 
-
+from wordCleaner import WordCleaner 
+WC=WordCleaner()
 #-------------------------------------------
 # unittestcase
 #-------------------------------------------
@@ -38,7 +31,7 @@ class TestWordCleaner(unittest.TestCase):
         # case: replace broken diacritic 
         ## (a)'আরো'==(b)'আরো'
         self.assertEqual(WC.clean('আরো'),'আরো')
-        
+
         
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         self.assertEqual(WC.clean('ASD1234'),None)

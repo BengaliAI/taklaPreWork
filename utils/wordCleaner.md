@@ -56,15 +56,14 @@
 
 ### Current Cases Handled:
 * handles broken diacritics
-* removes numbers
-* removes non-bengali symbols
+* removes numbers and non-bengali symbols
 * removes invalid starter symbols
 * removes invalid ending symbols
 * removes consecutive doubles of vds and cds
 * removes unwanted connectors in between vds
 
 ## TODO
-- [ ] Problematic Bangla Symbol removal
+- [x] Problematic Bangla Symbol removal
 - [x] unittest for values
 - [x] unittest for types (not sure if the pipeline should handle this)
 
@@ -72,9 +71,4 @@
 * change directory to utils:```cd utils```
 * run the two tests:``` python3 -m unittest test_wordCleaner```
 
-# Note:
-* unittest fails if type assertion is given as follows
-```python
-if type(word)!=str:
-    TypeError("The word must be a string")
-```
+
