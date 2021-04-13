@@ -38,10 +38,24 @@
         (a) breaks as:['ক', 'ি', 'ছ', 'ু', '্', 'ই']
         (b) breaks as:['ক', 'ি', 'ছ', 'ু','ই']
 ```
+### case: replace broken diacritic 
+* Example-1: 
+    ```python
+    (a)'আরো'==(b)'আরো' ->  False 
+        (a) breaks as:['আ', 'র', 'ে', 'া']
+        (b) breaks as:['আ', 'র', 'ো']
+    ```
+* Example-2:
+    ```python
+    (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
+        (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
+        (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
+    ```
 
 **Note**: Examples of more Invalid Word cases can be found under **invalid_cases** folder
 
 ### Current Cases Handled:
+* handles broken diacritics
 * removes numbers
 * removes non-bengali symbols
 * removes invalid starter symbols
@@ -59,7 +73,7 @@
 * run the two tests:``` python3 -m unittest test_wordCleaner```
 
 # Note:
-* unittest fails it type assertion is given as follows
+* unittest fails if type assertion is given as follows
 ```python
 if type(word)!=str:
     TypeError("The word must be a string")

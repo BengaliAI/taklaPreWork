@@ -200,10 +200,29 @@ class WordCleaner(object):
         else:
             return False
         
+    def __replaceBroken(self):
+        '''
+            case: replace broken diacritic 
+                # Example-1: 
+                (a)'আরো'==(b)'আরো' ->  False 
+                    (a) breaks as:['আ', 'র', 'ে', 'া']
+                    (b) breaks as:['আ', 'র', 'ো']
+                # Example-2:
+                (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
+                    (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
+                    (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
+            
+        '''
+        # broken vowel diacritic
+        # e-kar+a-kar = o-kar
+        self.word = self.word.replace('ে'+'া', 'ো')
+        # e-kar+e-kar = ou-kar
+        self.word = self.word.replace('ে'+'ৗ', 'ৌ')
 
     def clean(self,word):
         '''
             cleans a given word
+            * handles broken diacritics
             * removes numbers
             * removes non-bengali symbols
             * removes invalid starter symbols
@@ -214,9 +233,11 @@ class WordCleaner(object):
         if not isinstance(word, str):
             raise TypeError("The provided argument/ word is not a string") 
         self.word=word
+
         # None-flag
         self.return_none = False
-    
+        # replace broken 
+        self.__replaceBroken()
         # messy checks--> needs better replacement
         self.__cleanNumbers()
         if self.return_none:
