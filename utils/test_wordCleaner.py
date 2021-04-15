@@ -31,7 +31,15 @@ class TestWordCleaner(unittest.TestCase):
         # case: replace broken diacritic 
         ## (a)'আরো'==(b)'আরো'
         self.assertEqual(WC.clean('আরো'),'আরো')
-
+        ## (a)'পৌঁছে'== (b)'পৌঁছে'
+        self.assertEqual(WC.clean('পৌঁছে'),'পৌঁছে')
+        ## (a)সংস্কৄতি==(b)সংস্কৃতি
+        self.assertEqual(WC.clean('সংস্কৄতি'),'সংস্কৃতি')
+        # case: nukta  
+        ## (a)কেন্দ্রীয়==(b)কেন্দ্রীয়
+        self.assertEqual(WC.clean('কেন্দ্রীয়'),'কেন্দ্রীয়')
+        ## (a)রযে়ছে==(b)রয়েছে
+        self.assertEqual(WC.clean('রযে়ছে'),'রয়েছে')
         
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         self.assertEqual(WC.clean('ASD1234'),None)

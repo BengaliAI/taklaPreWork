@@ -38,27 +38,50 @@
         (a) breaks as:['ক', 'ি', 'ছ', 'ু', '্', 'ই']
         (b) breaks as:['ক', 'ি', 'ছ', 'ু','ই']
 ```
-### case: replace broken diacritic 
+### case: replace  diacritic 
 * Example-1: 
-    ```python
-    (a)'আরো'==(b)'আরো' ->  False 
-        (a) breaks as:['আ', 'র', 'ে', 'া']
-        (b) breaks as:['আ', 'র', 'ো']
-    ```
+```python
+(a)'আরো'==(b)'আরো' ->  False 
+    (a) breaks as:['আ', 'র', 'ে', 'া']
+    (b) breaks as:['আ', 'র', 'ো']
+```
 * Example-2:
-    ```python
-    (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
-        (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
-        (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
-    ```
+```python
+(a)পৌঁছে==(b)পৌঁছে ->  False
+    (a) breaks as:['প', 'ে', 'ৗ', 'ঁ', 'ছ', 'ে']
+    (b) breaks as:['প', 'ৌ', 'ঁ', 'ছ', 'ে']
+```
+* Example-3:
+```python
+(a)সংস্কৄতি==(b)সংস্কৃতি ->  False
+    (a) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৄ', 'ত', 'ি']
+    (b) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৃ', 'ত', 'ি']
+```
+### case: nukta unicode:
+* If the connecting char is with in the valid list ['য','ব','ড','ঢ'] then replace with ['য়','র','ড়', 'ঢ়']
+* Otherwise remove the nukta char completely
 
+**the connecting char**: is defined as the previous non-vowle-diacritic char 
+* Example-1:**when the nukta is immidiately next to a char i.e-'য', '়'**
+```python
+(a)কেন্দ্রীয়==(b)কেন্দ্রীয় ->  False
+    (a) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য', '়']
+    (b) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য়']
+```
+* Example-2:**when there is a diacritic inbetween the nukta and a char  i.e-'য', 'ে', '়'**
+```python
+(a)রযে়ছে==(b)রয়েছে ->  False
+    (a) breaks as:['র', 'য', 'ে', '়', 'ছ', 'ে']
+    (b) breaks as:['র', 'য়', 'ে', 'ছ', 'ে']
+```
 **Note**: Examples of more Invalid Word cases can be found under **invalid_cases** folder
 
 ### Current Cases Handled:
-* handles broken diacritics
+* handles diacritics
 * removes numbers and non-bengali symbols
 * removes invalid starter symbols
 * removes invalid ending symbols
+* removes invalid nukta symbols and normalizes the unicode
 * removes consecutive doubles of vds and cds
 * removes unwanted connectors in between vds
 
@@ -66,6 +89,8 @@
 - [x] Problematic Bangla Symbol removal
 - [x] unittest for values
 - [x] unittest for types (not sure if the pipeline should handle this)
+- [X] removes invalid nukta symbols and normalizes the unicode
+- [ ] handle consecutive VDS 
 
 # Unittest
 * change directory to utils:```cd utils```

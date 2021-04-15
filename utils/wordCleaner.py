@@ -22,29 +22,37 @@ class WordCleaner(object):
                     'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 
                     'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 
                     'ল', 'শ', 'ষ', 'স', 'হ', '়', 'া', 'ি', 'ী', 'ু', 
-                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ', '্', 'ৎ', 'ড়', 'ঢ়', 'য়','\u200d']
+                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ','ৗ',
+                    '্', 'ৎ', 'ড়', 'ঢ়', 'য়','\u200d']
+        
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
         
-    def __replaceBroken(self):
+    def __replaceDiacritics(self):
         '''
-            case: replace broken diacritic 
+            case: replace  diacritic 
                 # Example-1: 
                 (a)'আরো'==(b)'আরো' ->  False 
                     (a) breaks as:['আ', 'র', 'ে', 'া']
                     (b) breaks as:['আ', 'র', 'ো']
                 # Example-2:
-                (a)'বোধগম্য'==(b)'বোধগম্য' ->   False
-                    (a) breaks as:['ব', 'ে', 'া', 'ধ', 'গ', 'ম', '্', 'য']
-                    (b) breaks as:['ব', 'ো', 'ধ', 'গ', 'ম', '্', 'য']
-            
+                (a)পৌঁছে==(b)পৌঁছে ->  False
+                    (a) breaks as:['প', 'ে', 'ৗ', 'ঁ', 'ছ', 'ে']
+                    (b) breaks as:['প', 'ৌ', 'ঁ', 'ছ', 'ে']
+                # Example-3:
+                (a)সংস্কৄতি==(b)সংস্কৃতি ->  False
+                    (a) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৄ', 'ত', 'ি']
+                    (b) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৃ', 'ত', 'ি']
+                            
         '''
         # broken vowel diacritic
         # e-kar+a-kar = o-kar
         self.word = self.word.replace('ে'+'া', 'ো')
         # e-kar+e-kar = ou-kar
         self.word = self.word.replace('ে'+'ৗ', 'ৌ')
-
+        # unicode normalization of 'ৄ'-> 'ৃ'
+        self.word = self.word.replace('ৄ','ৃ')
+        
     def __createDecomp(self):
         # remove non-bengali unicode
         self.decomp=[ch for ch in self.word if ch in self.chars]
@@ -80,6 +88,45 @@ class WordCleaner(object):
             if not self.__checkDecomp():
                 self.return_none=True
                 break
+
+
+    def __cleanInvalidNuktaChars(self):
+        '''
+            handles nukta unicode as follows:
+                * If the connecting char is with in the valid list ['য','ব','ড','ঢ'] then replace with ['য়','র','ড়', 'ঢ়']
+                * Otherwise remove the nukta char completely
+            **the connecting char**: is defined as the previous non-vowle-diacritic char 
+            Example-1:If case
+            (a)কেন্দ্রীয়==(b)কেন্দ্রীয় ->  False
+                (a) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য', '়']
+                (b) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য়']
+            Example-2:Otherwise case
+            (a)রযে়ছে==(b)রয়েছে ->  False
+                (a) breaks as:['র', 'য', 'ে', '়', 'ছ', 'ে']
+                (b) breaks as:['র', 'য়', 'ে', 'ছ', 'ে']
+        '''            
+        __valid_chars =['য','ব','ড','ঢ']
+        __replacements=['য়','র','ড়','ঢ়']
+        for idx,d in enumerate(self.decomp):
+            if d=='়':
+                cid=None
+                # check the precedding char
+                if self.decomp[idx-1] in __valid_chars:
+                    cid=idx-1
+                # check the previous char before vowel diacritic
+                elif idx>2 and self.decomp[idx-2] in __valid_chars and self.decomp[idx-1] in self.vds:
+                    cid=idx-2
+
+                if cid:
+                    rep_char_idx=__valid_chars.index(self.decomp[cid])
+                    # replace
+                    self.decomp[cid]=__replacements[rep_char_idx]
+                    self.decomp.remove(d)
+                    if not self.__checkDecomp():
+                        self.return_none=True
+                        break        
+
+                
 
     def __cleanDoubleDecomp(self):
         '''
@@ -175,9 +222,10 @@ class WordCleaner(object):
     def clean(self,word):
         '''
             cleans a given word
-            * handles broken diacritics
+            * handles diacritics
             * removes numbers and non-bengali symbols
             * removes invalid starter symbols
+            * removes invalid nukta symbols and normalizes the unicode
             * removes invalid ending symbols
             * removes consecutive doubles of vds and cds
             * removes unwanted connectors in between vds
@@ -187,8 +235,8 @@ class WordCleaner(object):
         self.word=word
         # None-flag
         self.return_none = False
-        # replace broken 
-        self.__replaceBroken()
+        # replace Diacritics
+        self.__replaceDiacritics()
         # create clean decomp
         self.__createDecomp()
         if self.return_none:
@@ -197,6 +245,7 @@ class WordCleaner(object):
         # list of operations
         ops=[self.__cleanInvalidEnds,
              self.__cleanInvalidStarts,
+             self.__cleanInvalidNuktaChars,
              self.__cleanDoubleDecomp,
              self.__cleanConnector,
              self.__reconstructDecomp]
