@@ -6,7 +6,7 @@ from __future__ import print_function
 #-------------------------------------------
 # imports
 #-------------------------------------------
-import regex
+#import regex
 import pandas as pd
 #-------------------------------------------
 # cleaner class
