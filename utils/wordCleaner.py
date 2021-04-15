@@ -84,12 +84,9 @@ class WordCleaner(object):
         '''
             cleans a word that has invalid starting
         '''
-        while self.decomp[0] in self.inv_start:
-            del self.decomp[0]
-            if not self.__checkDecomp():
-                self.return_none=True
-                break
-
+        if self.decomp[0] in self.inv_start:
+            self.return_none=True
+            
 
     def __cleanInvalidNuktaChars(self):
         '''

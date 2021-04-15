@@ -50,6 +50,7 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('১২৩'),None)
         # invalid
         self.assertEqual(WC.clean('টেলগ্রািফস্ট'),None)
+        self.assertEqual(WC.clean('িত'),None)
         # Ending
         self.assertEqual(WC.clean("অজানা্"),"অজানা")
         
