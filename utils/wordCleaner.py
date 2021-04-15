@@ -16,6 +16,13 @@ class WordCleaner(object):
         # comps    
         self.vds    =['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ']
         self.cds    =['ঁ', 'র্', 'র্য', '্য', '্র', '্র্য', 'র্্র']
+        # chars
+        self.chars  =['ঁ', 'ং', 'ঃ', 'অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 
+                    'ঐ', 'ও', 'ঔ', 'ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 
+                    'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 
+                    'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 
+                    'ল', 'শ', 'ষ', 'স', 'হ', '়', 'া', 'ি', 'ী', 'ু', 
+                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ', '্', 'ৎ', 'ড়', 'ঢ়', 'য়','\u200d']
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
         
@@ -40,11 +47,7 @@ class WordCleaner(object):
 
     def __createDecomp(self):
         # remove non-bengali unicode
-        start   = 0x0980
-        end     = 0x09E5
-        
-        self.word = ''.join([s for s in self.word if (ord(s) >= start and ord(s)<=end) or s =='\u200d'])
-        self.decomp=[ch for ch in self.word]
+        self.decomp=[ch for ch in self.word if ch in self.chars]
         if not self.__checkDecomp():
             self.return_none=True
 
