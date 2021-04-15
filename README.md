@@ -1,19 +1,5 @@
 # taklaPreWork
 "Takla" dataset Generation and Collection
-```python
-Version: 0.0.1     
-```
-**LOCAL ENVIRONMENT**  
-```python
-OS          : Ubuntu 18.04.3 LTS (64-bit) Bionic Beaver        
-Memory      : 7.7 GiB  
-Processor   : Intel® Core™ i5-8250U CPU @ 1.60GHz × 8    
-Graphics    : Intel® UHD Graphics 620 (Kabylake GT2)  
-Gnome       : 3.28.2  
-```
-# Setup
-* ```pip3 install -r requirements.txt``` 
-> Its better to use a virtual environment 
 
 # DataSet
 **A combined dataset of  1008165 _articles_,_single words_,_phrases_ and _sentences_ is created from the following sources**
