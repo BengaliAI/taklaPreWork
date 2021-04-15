@@ -130,3 +130,4 @@ dmypy.json
 scrapper/posts.json
 debug.ipynb 
 __extra__/**
+.vscode/*
