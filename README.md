@@ -1,6 +1,9 @@
 # taklaPreWork
 "Takla" dataset Generation and Collection
 
+# related resources
+For a collection of related resources in takla research [click here](https://docs.google.com/spreadsheets/d/1ntJRkiRoVro24c1Hp3Zpejx9LRum9EQ94qlJYA-ipy4/edit?usp=sharing) 
+
 # DataSet
 **A combined dataset of  1008165 _articles_,_single words_,_phrases_ and _sentences_ is created from the following sources**
 * [WikiDump Bangla Data](https://dumps.wikimedia.org/bnwiki/latest/)
