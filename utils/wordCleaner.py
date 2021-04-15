@@ -72,8 +72,8 @@ class WordCleaner(object):
         '''
             cleans a word that has invalid ending i.e ends with '্' that does not make any sense
         '''
-        while self.decomp[-1] is '্':
-            del self.decomp[-1]
+        while self.decomp[-1] == '্':
+            self.decomp=self.decomp[:-1]
             if not self.__checkDecomp():
                 self.return_none=True
                 break 

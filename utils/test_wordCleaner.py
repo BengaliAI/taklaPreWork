@@ -47,6 +47,7 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('ASD1234'),None)
         self.assertEqual(WC.clean('১২৩'),None)
         self.assertEqual(WC.clean('্'),None)
+        self.assertEqual(WC.clean("অজানা্"),"অজানা")
         
     def test_types(self):
         '''
