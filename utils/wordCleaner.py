@@ -28,6 +28,7 @@ class WordCleaner(object):
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
         
+        
     def __replaceDiacritics(self):
         '''
             case: replace  diacritic 
@@ -135,8 +136,7 @@ class WordCleaner(object):
                         self.return_none=True
                         break        
 
-                
-
+    
     def __cleanDoubleDecomp(self):
         '''
             take care of doubles(consecutive doubles): proposed for vd and cd only
@@ -167,6 +167,7 @@ class WordCleaner(object):
                 if not self.__checkDecomp():
                     self.return_none=True
                     break
+
 
     
     def __cleanConnector(self):
@@ -202,6 +203,16 @@ class WordCleaner(object):
                         self.return_none=True
                         break
 
+    def __cleanDoubleDiacritics(self):
+        '''
+            case:invalid consecutive vowel diacritics  
+            * since there is no way to ensure which one is right it simply returns none                
+        '''
+        for idx,d in enumerate(self.decomp):
+            if idx<len(self.decomp)-1 and  d in self.vds and self.decomp[idx+1] in self.vds:
+                self.return_none=True
+                break
+                    
 
 
     def __reconstructDecomp(self):
@@ -257,6 +268,7 @@ class WordCleaner(object):
              self.__cleanInvalidNuktaChars,
              self.__cleanDoubleDecomp,
              self.__cleanConnector,
+             self.__cleanDoubleDiacritics,
              self.__reconstructDecomp]
 
         for op in ops:

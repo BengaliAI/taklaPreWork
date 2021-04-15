@@ -80,6 +80,9 @@
     (a) breaks as:['জ', '়', 'ন', '্', 'য']
     (b) breaks as:['জ', 'ন', '্', 'য']
 ```
+### case:invalid consecutive vowel diacritics  
+* since there is no way to ensure which one is right it simply returns none
+
 **Note**: Examples of more Invalid Word cases can be found under **invalid_cases** folder
 
 ### Current Cases Handled:

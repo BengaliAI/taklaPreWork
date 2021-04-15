@@ -44,9 +44,13 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('জ়ন্য'),'জন্য')
         
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
+        # english
         self.assertEqual(WC.clean('ASD1234'),None)
+        # numbers
         self.assertEqual(WC.clean('১২৩'),None)
-        self.assertEqual(WC.clean('্'),None)
+        # invalid
+        self.assertEqual(WC.clean('টেলগ্রািফস্ট'),None)
+        # Ending
         self.assertEqual(WC.clean("অজানা্"),"অজানা")
         
     def test_types(self):
