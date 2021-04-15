@@ -96,14 +96,18 @@ class WordCleaner(object):
                 * If the connecting char is with in the valid list ['য','ব','ড','ঢ'] then replace with ['য়','র','ড়', 'ঢ়']
                 * Otherwise remove the nukta char completely
             **the connecting char**: is defined as the previous non-vowle-diacritic char 
-            Example-1:If case
+            Example-1:If case-1
             (a)কেন্দ্রীয়==(b)কেন্দ্রীয় ->  False
                 (a) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য', '়']
                 (b) breaks as:['ক', 'ে', 'ন', '্', 'দ', '্', 'র', 'ী', 'য়']
-            Example-2:Otherwise case
+            Example-2:Elif case-2
             (a)রযে়ছে==(b)রয়েছে ->  False
                 (a) breaks as:['র', 'য', 'ে', '়', 'ছ', 'ে']
                 (b) breaks as:['র', 'য়', 'ে', 'ছ', 'ে']
+            Example-3:Otherwise 
+            (a)জ়ন্য==(b)জন্য ->  False
+                (a) breaks as:['জ', '়', 'ন', '্', 'য']
+                (b) breaks as:['জ', 'ন', '্', 'য']
         '''            
         __valid_chars =['য','ব','ড','ঢ']
         __replacements=['য়','র','ড়','ঢ়']
@@ -116,6 +120,11 @@ class WordCleaner(object):
                 # check the previous char before vowel diacritic
                 elif idx>2 and self.decomp[idx-2] in __valid_chars and self.decomp[idx-1] in self.vds:
                     cid=idx-2
+                else:
+                    self.decomp.remove(d)
+                    if not self.__checkDecomp():
+                        self.return_none=True
+                        break        
 
                 if cid:
                     rep_char_idx=__valid_chars.index(self.decomp[cid])

@@ -74,6 +74,12 @@
     (a) breaks as:['র', 'য', 'ে', '়', 'ছ', 'ে']
     (b) breaks as:['র', 'য়', 'ে', 'ছ', 'ে']
 ```
+* Example-3:Otherwise 
+```python
+(a)জ়ন্য==(b)জন্য ->  False
+    (a) breaks as:['জ', '়', 'ন', '্', 'য']
+    (b) breaks as:['জ', 'ন', '্', 'য']
+```
 **Note**: Examples of more Invalid Word cases can be found under **invalid_cases** folder
 
 ### Current Cases Handled:
