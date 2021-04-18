@@ -166,7 +166,7 @@ class WordCleaner(object):
                         self.return_none=True
                         break
                 # before case
-                if idx+1<len(self.decomp) and self.decomp[idx+1] in self.inv_hosonto_before:
+                elif idx+1<len(self.decomp) and self.decomp[idx+1] in self.inv_hosonto_before:
                     self.decomp.remove(d)
                     # break case
                     if not self.__checkDecomp():
