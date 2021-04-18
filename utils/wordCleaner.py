@@ -21,13 +21,14 @@ class WordCleaner(object):
                     'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 
                     'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 
                     'ল', 'শ', 'ষ', 'স', 'হ', '়', 'া', 'ি', 'ী', 'ু', 
-                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ','ৗ',
+                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ',
                     '্', 'ৎ', 'ড়', 'ঢ়', 'য়','\u200d']
         
+        self.vowels=['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ']
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
         # invalid hosonto cases
-        self.inv_hosonto_before=['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ']
+        self.inv_hosonto_before=self.vowels+['্']
         self.inv_hosonto_after=self.inv_hosonto_before+['ঁ', 'ং', 'ঃ']
         
     def __replaceDiacritics(self):
@@ -45,6 +46,7 @@ class WordCleaner(object):
                 (a)সংস্কৄতি==(b)সংস্কৃতি ->  False
                     (a) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৄ', 'ত', 'ি']
                     (b) breaks as:['স', 'ং', 'স', '্', 'ক', 'ৃ', 'ত', 'ি']
+                
                             
         '''
         # broken vowel diacritic
@@ -52,6 +54,8 @@ class WordCleaner(object):
         self.word = self.word.replace('ে'+'া', 'ো')
         # e-kar+e-kar = ou-kar
         self.word = self.word.replace('ে'+'ৗ', 'ৌ')
+        # 'অ'+ 'া'-->'আ'
+        self.word = self.word.replace('অ'+ 'া','আ')
         # unicode normalization of 'ৄ'-> 'ৃ'
         self.word = self.word.replace('ৄ','ৃ')
         
@@ -175,7 +179,6 @@ class WordCleaner(object):
 
             
 
-
     def __cleanDoubleDecomp(self):
         '''
             take care of doubles(consecutive doubles): proposed for vd and cd only
@@ -250,7 +253,34 @@ class WordCleaner(object):
                 self.return_none=True
                 break
                     
+    def __cleanVowelDiacsWithVowels(self):
+        '''
+            takes care of vowels followed by vowel diacritics
+            # Example-1:
+            (a)উুলু==(b)উলু-->False
+                (a) breaks as ['উ', 'ু', 'ল', 'ু']
+                (b) breaks as ['উ', 'ল', 'ু']
+            # Example-2:
+            (a)আর্কিওোলজি==(b)আর্কিওলজি-->False
+                (a) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ো', 'ল', 'জ', 'ি']
+                (b) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ল', 'জ', 'ি']
+            # Example-3:
+            ### Normalizes 'এ' and 'ত্র'
+            (a)একএে==(b)একত্রে-->False
+                (a) breaks as ['এ', 'ক', 'এ', 'ে']
+                (b) breaks as ['এ', 'ক', 'ত', '্', 'র', 'ে']
 
+        '''
+        for idx,d in enumerate(self.decomp):
+            if  d in self.vds and self.decomp[idx-1] in self.vowels:
+                if self.decomp[idx-1] !='এ':
+                    self.decomp.remove(d)
+                    # break case
+                    if not self.__checkDecomp():
+                        self.return_none=True
+                        break
+                else:
+                    self.decomp[idx-1:idx]='ত', '্', 'র'
 
     def __reconstructDecomp(self):
         '''
@@ -302,6 +332,7 @@ class WordCleaner(object):
         # list of operations
         ops=[self.__cleanInvalidEnds,
              self.__cleanInvalidStarts,
+             self.__cleanVowelDiacsWithVowels,
              self.__cleanInvalidNuktaChars,
              self.__cleanInvalidHosontoForVowels,
              self.__cleanDoubleDecomp,

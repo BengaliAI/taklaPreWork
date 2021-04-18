@@ -51,6 +51,14 @@ class TestWordCleaner(unittest.TestCase):
         ##(a)নেট্ওয়ার্ক==(b)নেটওয়ার্ক
         self.assertEqual(WC.clean('নেট্ওয়ার্ক'),'নেটওয়ার্ক')
         
+        ### case: Vowel Diacs after vowels (Also Normalizes 'এ' and 'ত্র')
+        ## (a)উুলু==(b)উলু
+        self.assertEqual(WC.clean('উুলু'),'উলু')
+        ## (a)একএে==(b)একত্রে
+        self.assertEqual(WC.clean('একএে'),'একত্রে')
+        
+
+
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         # english
         self.assertEqual(WC.clean('ASD1234'),None)

@@ -106,13 +106,34 @@
     (b) breaks as ['এ', 'স', 'আ', 'ই']
 ```
 
+### case: Vowel Diacs after vowels 
+* Example-1:
+```python
+(a)উুলু==(b)উলু-->False
+    (a) breaks as ['উ', 'ু', 'ল', 'ু']
+    (b) breaks as ['উ', 'ল', 'ু']
+```
+
+* Example-2:
+```python
+(a)আর্কিওোলজি==(b)আর্কিওলজি-->False
+    (a) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ো', 'ল', 'জ', 'ি']
+    (b) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ল', 'জ', 'ি']
+```
+### Normalizes 'এ' and 'ত্র'
+```python
+(a)একএে==(b)একত্রে-->False
+	(a) breaks as ['এ', 'ক', 'এ', 'ে']
+	(b) breaks as ['এ', 'ক', 'ত', '্', 'র', 'ে']
+```
+
 ### case:invalid consecutive vowel diacritics  
 * since there is no way to ensure which one is right it simply returns none
 
 **Note**: Examples of more Invalid Word cases can be found under **invalid_cases** folder
 
 ### Current Cases Handled:
-* handles diacritics
+* handles diacritics (Also Normalizes 'এ' and 'ত্র')
 * removes numbers and non-bengali symbols
 * removes invalid starter symbols
 * removes invalid ending symbols
@@ -120,13 +141,14 @@
 * removes invalid hosonto cases for vowels and 'ঁ', 'ং', 'ঃ'
 * removes consecutive doubles of vds and cds
 * removes unwanted connectors in between vds
+* removes vowel diacritics after vowels 
 
 ## TODO
 - [x] Problematic Bangla Symbol removal
 - [x] unittest for values
 - [x] unittest for types (not sure if the pipeline should handle this)
 - [X] removes invalid nukta symbols and normalizes the unicode
-- [ ] handle consecutive VDS 
+- [x] handle consecutive VDS 
 
 # Unittest
 * change directory to utils:```cd utils```
