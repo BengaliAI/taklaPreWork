@@ -42,9 +42,14 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('রযে়ছে'),'রয়েছে')
         ## (a)জ়ন্য==(b)জন্য
         self.assertEqual(WC.clean('জ়ন্য'),'জন্য')
-        
+        ## missed case
         self.assertEqual(WC.clean('য়'),'য়')
-        
+
+        # case: invalid hosonto after or before symbols
+        ## (a)এ্তে==(b)এতে
+        self.assertEqual(WC.clean('এ্তে'),'এতে')
+        ##(a)নেট্ওয়ার্ক==(b)নেটওয়ার্ক
+        self.assertEqual(WC.clean('নেট্ওয়ার্ক'),'নেটওয়ার্ক')
         
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         # english

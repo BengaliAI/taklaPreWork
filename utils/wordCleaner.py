@@ -26,7 +26,9 @@ class WordCleaner(object):
         
         # invalid starters
         self.inv_start=['্','়']+self.vds+self.cds
-        
+        # invalid hosonto cases
+        self.inv_hosonto_before=['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ']
+        self.inv_hosonto_after=self.inv_hosonto_before+['ঁ', 'ং', 'ঃ']
         
     def __replaceDiacritics(self):
         '''
@@ -134,7 +136,46 @@ class WordCleaner(object):
                         self.return_none=True
                         break        
 
-    
+    def __cleanInvalidHosontoForVowels(self):
+        '''
+            take care of the in valid hosontos that come after / before the vowels and the 'ঁ', 'ং', 'ঃ'
+            # Example-1:
+            (a)দুই্টি==(b)দুইটি-->False
+                (a) breaks as ['দ', 'ু', 'ই', '্', 'ট', 'ি']
+                (b) breaks as ['দ', 'ু', 'ই', 'ট', 'ি']
+            # Example-2:
+            (a)এ্তে==(b)এতে-->False
+                (a) breaks as ['এ', '্', 'ত', 'ে']
+                (b) breaks as ['এ', 'ত', 'ে']
+            # Example-3:
+            (a)নেট্ওয়ার্ক==(b)নেটওয়ার্ক-->False
+                (a) breaks as ['ন', 'ে', 'ট', '্', 'ও', 'য়', 'া', 'র', '্', 'ক']
+                (b) breaks as ['ন', 'ে', 'ট', 'ও', 'য়', 'া', 'র', '্', 'ক']
+            # Example-4:
+            (a)এস্আই==(b)এসআই-->False
+                (a) breaks as ['এ', 'স', '্', 'আ', 'ই']
+                (b) breaks as ['এ', 'স', 'আ', 'ই']
+        '''
+        for idx,d in enumerate(self.decomp):
+            if d=='্':
+                # after case: where the hosonto cant be valid 
+                if self.decomp[idx-1] in self.inv_hosonto_after and self.decomp[idx+1]!='য':
+                    self.decomp.remove(d)
+                    # break case
+                    if not self.__checkDecomp():
+                        self.return_none=True
+                        break
+                # before case
+                if idx+1<len(self.decomp) and self.decomp[idx+1] in self.inv_hosonto_before:
+                    self.decomp.remove(d)
+                    # break case
+                    if not self.__checkDecomp():
+                        self.return_none=True
+                        break
+
+            
+
+
     def __cleanDoubleDecomp(self):
         '''
             take care of doubles(consecutive doubles): proposed for vd and cd only
@@ -262,6 +303,7 @@ class WordCleaner(object):
         ops=[self.__cleanInvalidEnds,
              self.__cleanInvalidStarts,
              self.__cleanInvalidNuktaChars,
+             self.__cleanInvalidHosontoForVowels,
              self.__cleanDoubleDecomp,
              self.__cleanConnector,
              self.__cleanDoubleDiacritics,

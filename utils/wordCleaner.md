@@ -80,6 +80,32 @@
     (a) breaks as:['জ', '়', 'ন', '্', 'য']
     (b) breaks as:['জ', 'ন', '্', 'য']
 ```
+### case:invalid hosonto for vowels
+* Example-1:
+```python
+(a)দুই্টি==(b)দুইটি-->False
+    (a) breaks as ['দ', 'ু', 'ই', '্', 'ট', 'ি']
+    (b) breaks as ['দ', 'ু', 'ই', 'ট', 'ি']
+```
+* Example-2:
+```python
+(a)এ্তে==(b)এতে-->False
+    (a) breaks as ['এ', '্', 'ত', 'ে']
+    (b) breaks as ['এ', 'ত', 'ে'] 
+```
+* Example-3:
+```python
+(a)নেট্ওয়ার্ক==(b)নেটওয়ার্ক-->False
+    (a) breaks as ['ন', 'ে', 'ট', '্', 'ও', 'য়', 'া', 'র', '্', 'ক']
+    (b) breaks as ['ন', 'ে', 'ট', 'ও', 'য়', 'া', 'র', '্', 'ক']
+```
+* Example-4:
+```python
+(a)এস্আই==(b)এসআই-->False
+    (a) breaks as ['এ', 'স', '্', 'আ', 'ই']
+    (b) breaks as ['এ', 'স', 'আ', 'ই']
+```
+
 ### case:invalid consecutive vowel diacritics  
 * since there is no way to ensure which one is right it simply returns none
 
@@ -91,6 +117,7 @@
 * removes invalid starter symbols
 * removes invalid ending symbols
 * removes invalid nukta symbols and normalizes the unicode
+* removes invalid hosonto cases for vowels and 'ঁ', 'ং', 'ঃ'
 * removes consecutive doubles of vds and cds
 * removes unwanted connectors in between vds
 
