@@ -43,6 +43,9 @@ class TestWordCleaner(unittest.TestCase):
         ## (a)জ়ন্য==(b)জন্য
         self.assertEqual(WC.clean('জ়ন্য'),'জন্য')
         
+        self.assertEqual(WC.clean('য়'),'য়')
+        
+        
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         # english
         self.assertEqual(WC.clean('ASD1234'),None)

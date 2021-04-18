@@ -6,7 +6,6 @@ from __future__ import print_function
 #-------------------------------------------
 # imports
 #-------------------------------------------
-#import regex
 import pandas as pd
 #-------------------------------------------
 # cleaner class
@@ -111,20 +110,22 @@ class WordCleaner(object):
         __replacements=['য়','র','ড়','ঢ়']
         for idx,d in enumerate(self.decomp):
             if d=='়':
-                cid=None
+                check=False
                 # check the precedding char
                 if self.decomp[idx-1] in __valid_chars:
                     cid=idx-1
+                    check=True
                 # check the previous char before vowel diacritic
                 elif idx>2 and self.decomp[idx-2] in __valid_chars and self.decomp[idx-1] in self.vds:
                     cid=idx-2
+                    check=True
                 else:
                     self.decomp.remove(d)
                     if not self.__checkDecomp():
                         self.return_none=True
                         break        
 
-                if cid:
+                if check:
                     rep_char_idx=__valid_chars.index(self.decomp[cid])
                     # replace
                     self.decomp[cid]=__replacements[rep_char_idx]
@@ -148,7 +149,6 @@ class WordCleaner(object):
                 (a)'দুুই'==(b)'দুই' ->   False
                     (a) breaks as:['দ', 'ু', 'ু', 'ই']
                     (b) breaks as:['দ', 'ু', 'ই']
-
                 # Example-3:
                 (a)'প্রকৃৃতির'==(b)'প্রকৃতির' ->   False
                     (a) breaks as:['প', '্', 'র', 'ক', 'ৃ', 'ৃ', 'ত', 'ি', 'র']
@@ -181,7 +181,6 @@ class WordCleaner(object):
                 (a)'যু্ক্ত'==(b)'যুক্ত' ->   False
                     (a) breaks as:['য', 'ু', '্', 'ক', '্', 'ত']
                     (b) breaks as:['য', 'ু', 'ক', '্', 'ত']
-
                 # Example-3:
                 (a)'কিছু্ই'==(b)'কিছুই' ->   False
                     (a) breaks as:['ক', 'ি', 'ছ', 'ু', '্', 'ই']
