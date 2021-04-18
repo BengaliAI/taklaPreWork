@@ -272,9 +272,9 @@ class WordCleaner(object):
 
         '''
         for idx,d in enumerate(self.decomp):
-            if  d in self.vds and self.decomp[idx-1] in self.vowels:
+            if  d in self.vds and self.decomp[idx-1] in self.vowels+['ঁ', 'ং', 'ঃ']:
                 if self.decomp[idx-1] !='এ':
-                    self.decomp.remove(d)
+                    del self.decomp[idx]
                     # break case
                     if not self.__checkDecomp():
                         self.return_none=True
@@ -332,12 +332,12 @@ class WordCleaner(object):
         # list of operations
         ops=[self.__cleanInvalidEnds,
              self.__cleanInvalidStarts,
-             self.__cleanVowelDiacsWithVowels,
              self.__cleanInvalidNuktaChars,
              self.__cleanInvalidHosontoForVowels,
              self.__cleanDoubleDecomp,
              self.__cleanConnector,
              self.__cleanDoubleDiacritics,
+             self.__cleanVowelDiacsWithVowels,
              self.__reconstructDecomp]
 
         for op in ops:
