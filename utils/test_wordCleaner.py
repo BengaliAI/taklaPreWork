@@ -60,7 +60,11 @@ class TestWordCleaner(unittest.TestCase):
         ## (a)উত্স==(b)উৎস
         self.assertEqual(WC.clean('উত্স'),'উৎস')
         ## স্নাতকোত্ত্তর
-        self.assertEqual(WC.clean('স্নাতকোত্ত্তর'),None)
+        self.assertEqual(WC.clean('স্নাতকোত্ত্তর'),'স্নাতকোৎত্তর')
+        
+        
+        ### case: multiple folas
+        self.assertEqual(WC.clean('ন্দ্ব্ব্ব্ব্ব'),'ন্দ্ব')
         
 
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
@@ -68,9 +72,10 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('ASD1234'),None)
         # numbers
         self.assertEqual(WC.clean('১২৩'),None)
-        # invalid
+        # random
         self.assertEqual(WC.clean('টেলগ্রািফস্ট'),None)
-        self.assertEqual(WC.clean('িত'),None)
+        self.assertEqual(WC.clean('িত'),'ত')
+        self.assertEqual(WC.clean('সং্যুক্তি'),"সংযুক্তি")
         # Ending
         self.assertEqual(WC.clean("অজানা্"),"অজানা")
         
