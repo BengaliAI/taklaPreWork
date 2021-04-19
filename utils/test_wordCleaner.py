@@ -56,8 +56,12 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('উুলু'),'উলু')
         ## (a)একএে==(b)একত্রে
         self.assertEqual(WC.clean('একএে'),'একত্রে')
+        ### case: normalize to+hosonto
+        ## (a)উত্স==(b)উৎস
+        self.assertEqual(WC.clean('উত্স'),'উৎস')
+        ## স্নাতকোত্ত্তর
+        self.assertEqual(WC.clean('স্নাতকোত্ত্তর'),None)
         
-
 
         # Dummy Non-Bangla,Numbers and Space cases/ Invalid start end cases
         # english

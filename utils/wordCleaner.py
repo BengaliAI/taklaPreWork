@@ -12,25 +12,72 @@ import pandas as pd
 #-------------------------------------------
 class WordCleaner(object):
     def __init__(self):
-        # comps    
-        self.vds    =['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ']
-        self.cds    =['ঁ', 'র্', 'র্য', '্য', '্র', '্র্য', 'র্্র']
-        # chars
-        self.chars  =['ঁ', 'ং', 'ঃ', 'অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 
-                    'ঐ', 'ও', 'ঔ', 'ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 
-                    'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 
-                    'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 
-                    'ল', 'শ', 'ষ', 'স', 'হ', '়', 'া', 'ি', 'ী', 'ু', 
-                    'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ',
-                    '্', 'ৎ', 'ড়', 'ঢ়', 'য়','\u200d']
+        # components    
+        '''
+            this division of vowel, consonent and modifier is done according to :https://bn.wikipedia.org/wiki/%E0%A7%8E 
+        '''
+        self.vowels                 =   ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ']
+        self.consonents             =   ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 
+                                         'চ', 'ছ','জ', 'ঝ', 'ঞ', 
+                                         'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 
+                                         'ত', 'থ', 'দ', 'ধ', 'ন', 
+                                         'প', 'ফ', 'ব', 'ভ', 'ম', 
+                                         'য', 'র', 'ল', 'শ', 'ষ', 
+                                         'স', 'হ','ড়', 'ঢ়', 'য়']
+        self.modifiers              =   ['ঁ', 'ং', 'ঃ','ৎ']
+        # diacritics
+        self.vowel_diacritics       =   ['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ']
+        self.consonent_diacritics   =   ['ঁ', 'র্', 'র্য', '্য', '্র', '্র্য', 'র্্র']
+        # special charecters
+        self.nukta                  =   '়'
+        self.hosonto                =   '্'
+        self.special_charecters     =   [self.nukta,self.hosonto,'\u200d']
         
-        self.vowels=['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ']
-        # invalid starters
-        self.inv_start=['্','়']+self.vds+self.cds
+        # all valid unicode charecters
+        self.valid_unicodes         =   self.vowels+self.consonents+self.modifiers+self.vowel_diacritics+self.special_charecters
+        
+        
+        '''
+            some cases to handle
+        '''
+        
+        # invalid unicodes for starting
+        '''
+            no vowel diacritic, consonent diacritic , special charecter or modifier can start a word
+        '''   
+        self.invalid_unicodes_for_starting_a_word=self.modifiers+self.vowel_diacritics+self.special_charecters+self.consonent_diacritics
+        
+        
+        
         # invalid hosonto cases
-        self.inv_hosonto_before=self.vowels+['্']
-        self.inv_hosonto_after=self.inv_hosonto_before+['ঁ', 'ং', 'ঃ']
+        '''
+            a hosonto can not come before:
+                * the vowels
+                * another hosonto [double consecutive hosonto]
+            a hosonto can not come after:
+                * the vowels
+                * the modifiers
+                * another hosonto [double consecutive hosonto] 
+        '''
+        self.invalid_unicodes_after_hosonto     =       self.vowels+[self.hosonto]
+        self.invalid_unicodes_before_hosonto    =       self.vowels+self.modifiers+[self.hosonto]
         
+        
+        
+        # to+hosonto case
+        '''
+
+            case-1:     if 'ত'+hosonto is followed by anything other than a consonent the word is an invalid word
+
+            case-2:     The ত্‍ symbol which should be replaced by a 'ৎ' occurs for all consonants except:ত,থ,ন,ব,ম,য,র
+                        # code to verify this manually 
+                        for c in self.consonents:
+                            print('ত'+self.hosonto+c)
+ 
+        '''
+        self.valid_consonents_after_to_and_hosonto      =       ['ত','থ','ন','ব','ম','য','র'] 
+       
+
     def __replaceDiacritics(self):
         '''
             case: replace  diacritic 
@@ -60,8 +107,10 @@ class WordCleaner(object):
         self.word = self.word.replace('ৄ','ৃ')
         
     def __createDecomp(self):
-        # remove non-bengali unicode
-        self.decomp=[ch for ch in self.word if ch in self.chars]
+        '''
+            create list of valid unicodes
+        '''
+        self.decomp=[ch for ch in self.word if ch in self.valid_unicodes]
         if not self.__checkDecomp():
             self.return_none=True
 
@@ -74,11 +123,23 @@ class WordCleaner(object):
         else:
             return False
 
+    def __deleteComponent(self,idx):
+        '''
+            delete unwanted component
+            args:
+                idx = index of the component
+        '''
+        del self.decomp[idx]
+        # break case
+        if not self.__checkDecomp():
+            self.return_none=True
+            
+
     def __cleanInvalidEnds(self):
         '''
             cleans a word that has invalid ending i.e ends with '্' that does not make any sense
         '''
-        while self.decomp[-1] == '্':
+        while self.decomp[-1] == self.hosonto:
             self.decomp=self.decomp[:-1]
             if not self.__checkDecomp():
                 self.return_none=True
@@ -89,11 +150,11 @@ class WordCleaner(object):
         '''
             cleans a word that has invalid starting
         '''
-        if self.decomp[0] in self.inv_start:
+        if self.decomp[0] in self.invalid_unicodes_for_starting_a_word:
             self.return_none=True
             
 
-    def __cleanInvalidNuktaChars(self):
+    def __cleanNuktaUnicode(self):
         '''
             handles nukta unicode as follows:
                 * If the connecting char is with in the valid list ['য','ব','ড','ঢ'] then replace with ['য়','র','ড়', 'ঢ়']
@@ -112,37 +173,41 @@ class WordCleaner(object):
                 (a) breaks as:['জ', '়', 'ন', '্', 'য']
                 (b) breaks as:['জ', 'ন', '্', 'য']
         '''            
-        __valid_chars =['য','ব','ড','ঢ']
-        __replacements=['য়','র','ড়','ঢ়']
-        for idx,d in enumerate(self.decomp):
-            if d=='়':
-                check=False
-                # check the precedding char
-                if self.decomp[idx-1] in __valid_chars:
-                    cid=idx-1
-                    check=True
-                # check the previous char before vowel diacritic
-                elif idx>2 and self.decomp[idx-2] in __valid_chars and self.decomp[idx-1] in self.vds:
-                    cid=idx-2
-                    check=True
-                else:
-                    self.decomp.remove(d)
-                    if not self.__checkDecomp():
-                        self.return_none=True
-                        break        
+        __valid_charecters_without_nukta    =   ['য','ব','ড','ঢ']
+        __replacements                      =   ['য়','র','ড়','ঢ়']
+        try:
+            for idx,d in enumerate(self.decomp):
+                if d==self.nukta:
+                    check=False
+                    # check the previous charecter is a valid charecter where the nukta can be added
+                    if self.decomp[idx-1] in __valid_charecters_without_nukta:
+                        cid=idx-1
+                        check=True
+                    # check the previous char before vowel diacritic
+                    elif self.decomp[idx-2] in __valid_charecters_without_nukta and self.decomp[idx-1] in self.vowel_diacritics:
+                        cid=idx-2
+                        check=True
+                    # remove unwanted extra nukta 
+                    else:
+                        self.__deleteComponent(idx)
+                        if self.return_none:
+                            break
 
-                if check:
-                    rep_char_idx=__valid_chars.index(self.decomp[cid])
-                    # replace
-                    self.decomp[cid]=__replacements[rep_char_idx]
-                    self.decomp.remove(d)
-                    if not self.__checkDecomp():
-                        self.return_none=True
-                        break        
+                    if check:
+                        rep_char_idx=__valid_charecters_without_nukta.index(self.decomp[cid])
+                        # replace
+                        self.decomp[cid]=__replacements[rep_char_idx]
+                        # delete nukta
+                        self.__deleteComponent(idx)
+                        if self.return_none:
+                            break
+                              
+        except Exception as e:
+            pass
 
-    def __cleanInvalidHosontoForVowels(self):
+    def __cleanInvalidHosonto(self):
         '''
-            take care of the in valid hosontos that come after / before the vowels and the 'ঁ', 'ং', 'ঃ'
+            case:take care of the in valid hosontos that come after / before the vowels and the modifiers
             # Example-1:
             (a)দুই্টি==(b)দুইটি-->False
                 (a) breaks as ['দ', 'ু', 'ই', '্', 'ট', 'ি']
@@ -159,31 +224,88 @@ class WordCleaner(object):
             (a)এস্আই==(b)এসআই-->False
                 (a) breaks as ['এ', 'স', '্', 'আ', 'ই']
                 (b) breaks as ['এ', 'স', 'আ', 'ই']
-        '''
-        for idx,d in enumerate(self.decomp):
-            if d=='্':
-                # after case: where the hosonto cant be valid 
-                if self.decomp[idx-1] in self.inv_hosonto_after and self.decomp[idx+1]!='য':
-                    self.decomp.remove(d)
-                    # break case
-                    if not self.__checkDecomp():
-                        self.return_none=True
-                        break
-                # before case
-                elif idx+1<len(self.decomp) and self.decomp[idx+1] in self.inv_hosonto_before:
-                    self.decomp.remove(d)
-                    # break case
-                    if not self.__checkDecomp():
-                        self.return_none=True
-                        break
 
+            case:if the hosonto is in between two vowel diacritics  
+            # Example-1: 
+            (a)'চু্ক্তি'==(b)'চুক্তি' ->  False 
+                (a) breaks as:['চ', 'ু', '্', 'ক', '্', 'ত', 'ি']
+                (b) breaks as:['চ', 'ু','ক', '্', 'ত', 'ি']
+            # Example-2:
+            (a)'যু্ক্ত'==(b)'যুক্ত' ->   False
+                (a) breaks as:['য', 'ু', '্', 'ক', '্', 'ত']
+                (b) breaks as:['য', 'ু', 'ক', '্', 'ত']
+            # Example-3:
+            (a)'কিছু্ই'==(b)'কিছুই' ->   False
+                (a) breaks as:['ক', 'ি', 'ছ', 'ু', '্', 'ই']
+                (b) breaks as:['ক', 'ি', 'ছ', 'ু','ই']
+        '''
+        try:
+            for idx,d in enumerate(self.decomp):
+                if d==self.hosonto:
+                    check=False
+                    # before case 
+                    if self.decomp[idx-1] in self.invalid_unicodes_before_hosonto and self.decomp[idx+1]!='য':
+                        check=True    
+                    # after case
+                    elif self.decomp[idx+1] in self.invalid_unicodes_after_hosonto:
+                        check=True
+                    # if the hosonto is in between two vowel diacritics
+                    elif self.decomp[idx-1] in self.vowel_diacritics or self.decomp[idx+1] in self.vowel_diacritics:
+                        check=True
+                    
+                    if check:
+                        self.__deleteComponent(idx)
+                        if self.return_none:
+                            break
+                    
+        except Exception as e:
+            pass                     
+    
+    def __cleanInvalidToAndHosonto(self):
+        '''
+            normalizes to+hosonto for ['ত','থ','ন','ব','ম','য','র'] 
+            # Example-1:
+            (a)বুত্পত্তি==(b)বুৎপত্তি-->False
+                (a) breaks as ['ব', 'ু', 'ত', '্', 'প', 'ত', '্', 'ত', 'ি']
+                (b) breaks as ['ব', 'ু', 'ৎ', 'প', 'ত', '্', 'ত', 'ি']
+            # Example-2:
+            (a)উত্স==(b)উৎস-->False
+                (a) breaks as ['উ', 'ত', '্', 'স']
+                (b) breaks as ['উ', 'ৎ', 'স']
+        '''
+        try:
+            for idx,d in enumerate(self.decomp):
+                # to + hosonto
+                if d=='ত' and self.decomp[idx+1]==self.hosonto:
+                    # for single case
+                    if  self.decomp[idx+2] not in self.valid_consonents_after_to_and_hosonto:
+                        # replace
+                        self.decomp[idx]='ৎ'
+                        # delete
+                        self.__deleteComponent(idx+1)
+                        if self.return_none:
+                            break
+                    else: 
+                        # valid replacement for to+hos double case
+                        if self.decomp[idx+2]=='ত' and self.decomp[idx+3]==self.hosonto and self.decomp[idx+4]:
+                            # double khondotto with anything apart from ['ত','থ','ন','ব','ম','য','র']
+                            if self.decomp[idx+4] not in self.valid_consonents_after_to_and_hosonto:
+                                self.return_none=True
+                                break 
+                            # if the next charecter after the double to+hos+to+hos is with in ['ত','থ','ন','ব','ম','য','র'] 
+                            else:    
+                                # corner case for to+hos+to+hos+bo and to+hos+to+hos+zo 
+                                if self.decomp[idx+4] not in  ['ব','য']:
+                                    self.return_none=True
+                                    break 
+                                
+        except Exception as e:
+            pass
             
 
-    def __cleanDoubleDecomp(self):
+    def __cleanDoubleVowelDiacritics(self):
         '''
-            take care of doubles(consecutive doubles): proposed for vd and cd only
             removes unwanted doubles(consecutive doubles):
-            
             case:unwanted doubles  
                 # Example-1: 
                 (a)'যুুদ্ধ'==(b)'যুদ্ধ' ->  False 
@@ -197,65 +319,33 @@ class WordCleaner(object):
                 (a)'প্রকৃৃতির'==(b)'প্রকৃতির' ->   False
                     (a) breaks as:['প', '্', 'র', 'ক', 'ৃ', 'ৃ', 'ত', 'ি', 'র']
                     (b) breaks as:['প', '্', 'র', 'ক', 'ৃ', 'ত', 'ি', 'র']
-            
-        '''
-        for idx,d in enumerate(self.decomp):
-            # if its not the last one and it is in cd or vd and the next symbol is as same as the current one 
-            # remove current symbol    
-            if d in self.vds+self.cds and idx<len(self.decomp)-1 and self.decomp[idx+1]==d:
-                self.decomp.remove(d)
-                # break case
-                if not self.__checkDecomp():
-                    self.return_none=True
-                    break
 
-
-    
-    def __cleanConnector(self):
-        '''
-            removes unwanted connectors:
-            * if the '্' is in between any VDS remove it 
-            
-            case:unwanted middle connector '্'  
-                # Example-1: 
-                (a)'চু্ক্তি'==(b)'চুক্তি' ->  False 
-                    (a) breaks as:['চ', 'ু', '্', 'ক', '্', 'ত', 'ি']
-                    (b) breaks as:['চ', 'ু','ক', '্', 'ত', 'ি']
-                # Example-2:
-                (a)'যু্ক্ত'==(b)'যুক্ত' ->   False
-                    (a) breaks as:['য', 'ু', '্', 'ক', '্', 'ত']
-                    (b) breaks as:['য', 'ু', 'ক', '্', 'ত']
-                # Example-3:
-                (a)'কিছু্ই'==(b)'কিছুই' ->   False
-                    (a) breaks as:['ক', 'ি', 'ছ', 'ু', '্', 'ই']
-                    (b) breaks as:['ক', 'ি', 'ছ', 'ু','ই']
+            case:invalid consecutive vowel diacritics where they are not the same 
+            * since there is no way to ensure which one is right it simply returns none
             
         '''
-        connector= '্'
-        # remove middle connectors 
-        for idx,d in enumerate(self.decomp):
-            # if not last char
-            if d==connector and idx<len(self.decomp)-1:
-                if self.decomp[idx-1] in self.vds or self.decomp[idx+1] in self.vds:
-                    del self.decomp[idx]
-                    # break case
-                    if not self.__checkDecomp():
+        try:
+            for idx,d in enumerate(self.decomp):
+                # case of consecutive vowel diacritics
+                if d in self.vowel_diacritics and self.decomp[idx+1] in self.vowel_diacritics:
+                    # if they are same delete the current one
+                    if d==self.decomp[idx+1]:
+                        self.__deleteComponent(idx)
+                        if self.return_none:
+                            break
+                    # if they are not same --> the word is in valid
+                    else:
                         self.return_none=True
                         break
+        except Exception as e:
+            pass
 
-    def __cleanDoubleDiacritics(self):
+    
+                
+                                
+    def __cleanVowelDiacriticsComingAfterVowelsAndModifiers(self):
         '''
-            case:invalid consecutive vowel diacritics  
-            * since there is no way to ensure which one is right it simply returns none                
-        '''
-        for idx,d in enumerate(self.decomp):
-            if idx<len(self.decomp)-1 and  d in self.vds and self.decomp[idx+1] in self.vds:
-                self.return_none=True
-                break
-                    
-    def __cleanVowelDiacsWithVowels(self):
-        '''
-            takes care of vowels followed by vowel diacritics
+            takes care of vowels and modifier followed by vowel diacritics
             # Example-1:
             (a)উুলু==(b)উলু-->False
                 (a) breaks as ['উ', 'ু', 'ল', 'ু']
@@ -264,23 +354,30 @@ class WordCleaner(object):
             (a)আর্কিওোলজি==(b)আর্কিওলজি-->False
                 (a) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ো', 'ল', 'জ', 'ি']
                 (b) breaks as ['আ', 'র', '্', 'ক', 'ি', 'ও', 'ল', 'জ', 'ি']
-            # Example-3:
-            ### Normalizes 'এ' and 'ত্র'
+            
+
+            Also Normalizes 'এ' and 'ত্র'
+            # Example-1:
             (a)একএে==(b)একত্রে-->False
                 (a) breaks as ['এ', 'ক', 'এ', 'ে']
                 (b) breaks as ['এ', 'ক', 'ত', '্', 'র', 'ে']
 
         '''
-        for idx,d in enumerate(self.decomp):
-            if  d in self.vds and self.decomp[idx-1] in self.vowels+['ঁ', 'ং', 'ঃ']:
-                if self.decomp[idx-1] !='এ':
-                    del self.decomp[idx]
-                    # break case
-                    if not self.__checkDecomp():
-                        self.return_none=True
-                        break
-                else:
-                    self.decomp[idx-1:idx]='ত', '্', 'র'
+        try:
+            for idx,d in enumerate(self.decomp):
+                # if the current one is a VD and the previous char is a modifier or vowel
+                if  d in self.vowel_diacritics and self.decomp[idx-1] in self.vowels+self.modifiers:
+                    # if the vowel is not 'এ'
+                    if self.decomp[idx-1] !='এ':
+                        # remove diacritic
+                        self.__deleteComponent(idx)
+                        if self.return_none:
+                            break
+                    # normalization case
+                    else:
+                        self.decomp[idx-1:idx]='ত', '্', 'র'
+        except Exception as e:
+            pass 
 
     def __reconstructDecomp(self):
         '''
@@ -309,19 +406,26 @@ class WordCleaner(object):
     def clean(self,word):
         '''
             cleans a given word
-            * handles diacritics
-            * removes numbers and non-bengali symbols
-            * removes invalid starter symbols
-            * removes invalid nukta symbols and normalizes the unicode
-            * removes invalid ending symbols
-            * removes consecutive doubles of vds and cds
-            * removes unwanted connectors in between vds
+            # list of operations
+            ops=[self.__cleanInvalidEnds,
+                self.__cleanInvalidStarts,
+                self.__cleanNuktaUnicode,
+                self.__cleanInvalidHosonto,
+                self.__cleanInvalidToAndHosonto,
+                self.__cleanDoubleVowelDiacritics,
+                self.__cleanVowelDiacriticsComingAfterVowelsAndModifiers]
+            
+            
         '''
         if not isinstance(word, str):
             raise TypeError("The provided argument/ word is not a string") 
+        
+        
         self.word=word
         # None-flag
         self.return_none = False
+        
+        
         # replace Diacritics
         self.__replaceDiacritics()
         # create clean decomp
@@ -329,16 +433,17 @@ class WordCleaner(object):
         if self.return_none:
             return None
         
+
         # list of operations
         ops=[self.__cleanInvalidEnds,
              self.__cleanInvalidStarts,
-             self.__cleanInvalidNuktaChars,
-             self.__cleanInvalidHosontoForVowels,
-             self.__cleanDoubleDecomp,
-             self.__cleanConnector,
-             self.__cleanDoubleDiacritics,
-             self.__cleanVowelDiacsWithVowels,
+             self.__cleanNuktaUnicode,
+             self.__cleanInvalidHosonto,
+             self.__cleanInvalidToAndHosonto,
+             self.__cleanDoubleVowelDiacritics,
+             self.__cleanVowelDiacriticsComingAfterVowelsAndModifiers,
              self.__reconstructDecomp]
+        
 
         for op in ops:
             if not self.__checkOp(op):
