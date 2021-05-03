@@ -103,10 +103,10 @@ class TalkaGenerator(object):
             x=list(x)
             # start
             if x[0] in maps.keys() and x[1] not in self.vowels:
-                x[0]=maps[x[0]]
+                x[0]=random.choice([maps[x[0]],x[0]])
             # end
             if x[-1] in maps.keys() and x[-2] not in self.vowels:
-                x[-1]=maps[x[-1]]
+                x[-1]=random.choice([maps[x[-1]],x[-1]])
             # middle
             maps={"a":"u",
                   "e":"a",
@@ -119,7 +119,7 @@ class TalkaGenerator(object):
                 if idx>0 and idx<len(x)-1:
                     # consecutive vowel
                     if x[idx-1] not in self.vowels and x[idx+1] not in self.vowels and c in maps.keys():
-                        x[idx]=maps[c] 
+                        x[idx]=random.choice([maps[c],c]) 
 
             # double
             x="".join(x)
@@ -146,7 +146,7 @@ class TalkaGenerator(object):
                   "uu":"u"}
 
             for _map in maps.keys():
-                x.replace(_map,maps[_map])
+                x.replace(_map,random.choice([maps[_map],_map]))
 
             return x
 
@@ -162,81 +162,103 @@ class TalkaGenerator(object):
         # convert standard
         self.__convertStandard()
         # remove ending phone
-        #self.__removeEndingPhone()
+        self.__removeEndingPhone()
         # initial vowel 1st degree
         self.__vowelChange()
     
+#---------------------------------------------------------------------------------------
+# random gen
+#---------------------------------------------------------------------------------------
 
         
+class RandomTaklaGenerator(object):
+    def __init__(self):
+        self.gaps=['b','c','f','g','j','k','p','q','s','v','x','z']
+        self.reps= [['b','v'],
+                    ['c','c','c','s','s','k'],
+                    ['f','p'],
+                    ['g','g','j','z'],
+                    ['j','j','g','z'],
+                    ['k','k','q','c'],
+                    ['p','f'],
+                    ['q','q','k','c'],
+                    ['s','s','c'],
+                    ['v','v','b'],
+                    ['x','x','x','x','eks','aks','acs','ecs'],
+                    ['z','z','g','j']]
+            
+        self.vowels='aeiou'
+        self.CHARS  = ["a","e","i","o","u","","",""]
 
-# #---------------------------------------------------------------------------------------
-# # globals
-# #---------------------------------------------------------------------------------------
-
-# gaps=['b','c','f','g','j','k','p','q','s','v','x','z']
-# reps=[['b','v'],
-#       ['c','c','c','s','s','k'],
-#       ['f','p'],
-#       ['g','g','j','z'],
-#       ['j','j','g','z'],
-#       ['k','k','q','c'],
-#       ['p','f'],
-#       ['q','q','k','c'],
-#       ['s','s','c'],
-#       ['v','v','b'],
-#       ['x','x','x','x','eks','aks','acs','ecs'],
-#       ['z','z','g','j']]
-      
-# sem_vowels='aeiouwy'
-# CHARS  = ["a","e","i","o","u","","",""]
-
-# #---------------------------------------------------------------------------------------
-# # helpers
-# #---------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------
+# helpers
+#---------------------------------------------------------------------------------------
 
 
-# def random_generator(vowels):
-#     rand  = np.random.rand(1)
-#     if rand<0.5:
-#         return random.choice(vowels)
-#     else:
-#         return "".join(random.choices(vowels, k=2))
-# #---------------------------------------------------------------------------------------
-# # ops
-# #---------------------------------------------------------------------------------------
+    def random_generator(self):
+        rand  = np.random.rand(1)
+        if rand<0.5:
+            return random.choice(self.vowels)
+        else:
+            return "".join(random.choices(self.vowels, k=2))
+#---------------------------------------------------------------------------------------
+# ops
+#---------------------------------------------------------------------------------------
 
-# def VC(text):
-#     return re.sub(f'[{sem_vowels}]', lambda L: random.choice(sem_vowels), text, flags=re.I)
+    def VC(self):
+        return re.sub(f'[{self.vowels}]', lambda L: random.choice(self.vowels), self.text, flags=re.I)
 
-# def VA(text):
-#     return re.sub(f'[{sem_vowels}]', lambda L: random_generator(sem_vowels),text , flags=re.I)
+    def VA(self):
+        return re.sub(f'[{self.vowels}]', lambda L: self.random_generator(),self.text , flags=re.I)
 
-# def VR(text):
-#     return re.sub(f'[{sem_vowels}]', lambda L: random.choice(CHARS),text , flags=re.I)
+    def VR(self):
+        return re.sub(f'[{self.vowels}]', lambda L: random.choice(self.CHARS),self.text , flags=re.I)
 
-# def THR(text):
-#     return re.sub("[h]",lambda L: random.choice(["h","h","","",""]),text)     
+    def THR(self):
+        return re.sub("[h]",lambda L: random.choice(["h","h","","",""]),self.text)     
 
-# def RPSS(text):
-#     for gap,rep in zip(gaps,reps): 
-#         text=re.sub(f"[{gap}]",lambda L: random.choice(rep),text)
-#     return text
+    def RPSS(self):
+        for gap,rep in zip(self.gaps,self.reps): 
+            self.text=re.sub(f"[{gap}]",lambda L: random.choice(rep),self.text)
+        return self.text
 
-# OPS=[VC,VA,VR,THR,RPSS]
-# #---------------------------------------------------------------------------------------
-# # wrapper
-# #---------------------------------------------------------------------------------------
 
-# def create_takla(text,num_ops=1):
-#     '''
-#         creates a takla based on given text and number of random operations
-#         args:
-#             text    :    Romanized Standard Text
-#             num_ops :    the time of random operations to occur
-#         returns:
-#             takla text (as generated)
-#     '''
-#     for i in range(num_ops):
-#         text=random.choice(OPS)(text)
-#     return text
+#---------------------------------------------------------------------------------------
+# wrapper
+#---------------------------------------------------------------------------------------
 
+    def create_takla(self,
+                    text,
+                    num_samples,
+                    num_max_ops,
+                    num_max_degree):
+        '''
+            creates a takla based on given text and number of random operations
+            args:
+                text            :   Romanized Standard text
+                num_samples     :   Number of samples to generate
+                num_max_ops     :   the time of random operations to occur at one occurance
+                num_max_degree  :   the number of sequence of operations
+            returns:
+                takla text (as generated)
+        '''
+        takla_list=[]
+        for _ in range(num_samples):
+            self.text=text
+            
+            # degree / sequence of ops
+            degree=random.randint(1,num_max_degree)
+            
+            for _ in range(degree):
+                # take number of operations
+            
+                nops=random.randint(1,num_max_ops) 
+            
+                OPS=[self.VC,self.VA,self.VR,self.THR,self.RPSS]
+            
+                random.shuffle(OPS)
+                for i in range(nops):
+                    self.text=OPS[i]()
+            # append
+            takla_list.append(self.text)
+        return takla_list
