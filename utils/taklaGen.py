@@ -88,70 +88,93 @@ class TalkaGenerator(object):
 
         self.data["standard"]=phoneRemoved
 
-    def __vowelChange(self):
+    def __vowelChange(self,x):
         '''
             first degree vowel change:
         '''
-        # private lambda
-        def __lambda(x):
-            # start and end
-            maps={"e":"a",
-                  "i":"e",
-                  "o":"a"}
-            
-            # make list
-            x=list(x)
-            # start
-            if x[0] in maps.keys() and x[1] not in self.vowels:
-                x[0]=random.choice([maps[x[0]],x[0]])
-            # end
-            if x[-1] in maps.keys() and x[-2] not in self.vowels:
-                x[-1]=random.choice([maps[x[-1]],x[-1]])
-            # middle
-            maps={"a":"u",
-                  "e":"a",
-                  "i":"e",
-                  "o":"a",
-                  "u":"a"}
-            
-            for idx,c in enumerate(x):
-                # for middle ones
-                if idx>0 and idx<len(x)-1:
-                    # consecutive vowel
-                    if x[idx-1] not in self.vowels and x[idx+1] not in self.vowels and c in maps.keys():
-                        x[idx]=random.choice([maps[c],c]) 
+        # start and end
+        maps={"e":"a",
+                "i":"e",
+                "o":"a"}
+        
+        # make list
+        x=list(x)
+        # start
+        if x[0] in maps.keys() and x[1] not in self.vowels:
+            x[0]=random.choice([maps[x[0]],x[0]])
+        # end
+        if x[-1] in maps.keys() and x[-2] not in self.vowels:
+            x[-1]=random.choice([maps[x[-1]],x[-1]])
+        # middle
+        maps={"a":"u",
+                "e":"a",
+                "i":"e",
+                "o":"a",
+                "u":"a"}
+        
+        for idx,c in enumerate(x):
+            # for middle ones
+            if idx>0 and idx<len(x)-1:
+                # consecutive vowel
+                if x[idx-1] not in self.vowels and x[idx+1] not in self.vowels and c in maps.keys():
+                    x[idx]=random.choice([maps[c],c]) 
 
-            # double
-            x="".join(x)
-            maps={"aa":"a",
-                  "ai":"ae",
-                  "ao":"au",
-                  "au":"ao",
-                  "ee":"e",
-                  "ei":"ae",
-                  "eo":"eu",
-                  "eu":"eo",
-                  "ie":"iye",
-                  "io":"eo",
-                  "ii":"i",
-                  "iu":"ew",
-                  "oa":"ua",
-                  "oe":"oi",
-                  "oi":"oy",
-                  "oo":"o",
-                  "ou":"ow",
-                  "ua":"o",
-                  "ui":"e",
-                  "uo":"o",
-                  "uu":"u"}
+        # double
+        x="".join(x)
+        maps={"aa":"a",
+                "ai":"ae",
+                "ao":"au",
+                "au":"ao",
+                "ee":"e",
+                "ei":"ae",
+                "eo":"eu",
+                "eu":"eo",
+                "ie":"iye",
+                "io":"eo",
+                "ii":"i",
+                "iu":"ew",
+                "oa":"ua",
+                "oe":"oi",
+                "oi":"oy",
+                "oo":"o",
+                "ou":"ow",
+                "ua":"o",
+                "ui":"e",
+                "uo":"o",
+                "uu":"u"}
 
-            for _map in maps.keys():
-                x.replace(_map,random.choice([maps[_map],_map]))
+        for _map in maps.keys():
+            x.replace(_map,random.choice([maps[_map],_map]))
 
-            return x
+        return x
 
-        self.data["FVC"]=self.data.standard.apply(lambda x: __lambda(x))
-
+        
+    def __shotenWords(self,x):
+        '''
+            removes the vowels
+        '''
+        # make list
+        x=list(x)
+        for idx,c in enumerate(x):
+            if idx>0 and idx!=len(x)-1:
+                if c in self.vowels:
+                    x[idx]=None
+        x=[i for i in x if i is not None]
+        x="".join(x)
+        return x
+    
+    def __removeH(self,x):
+        '''
+            removes trailing H 
+        '''
+        # make list
+        x=list(x)
+        for idx,c in enumerate(x):
+            if idx>0 and c=="h":
+                x[idx]=random.choice(["","h"])
+        x=[i for i in x if i is not ""]
+        x="".join(x)
+        return x
     
     
     def createTakla(self,sentence):
@@ -164,7 +187,13 @@ class TalkaGenerator(object):
         # remove ending phone
         self.__removeEndingPhone()
         # initial vowel 1st degree
-        self.__vowelChange()
+        self.data["FVC"]=self.data.standard.apply(lambda x: self.__vowelChange(x))
+        # shorten the word
+        self.data["Short"]=self.data.standard.apply(lambda x: self.__shotenWords(x))
+        # h removal
+        self.data["Hremoved"]=self.data.standard.apply(lambda x: self.__removeH(x))
+        
+        
     
 #---------------------------------------------------------------------------------------
 # random gen
