@@ -37,6 +37,12 @@ class TalkaGenerator(object):
         self.word_cleaner=WordCleaner()
         # globals
         self.vowels=["a","e","i","o","u"]
+        # operations maps
+        self.ops_map={"VC"      :self.__vowelChange,
+                      "VR"      :self.__vowelRemoval,
+                      "THR"     :self.__removeH,
+                      "RPSS"    :self.__replaceConsonants,
+                      "SHORT"   :self.__shotenWords}
 
         
     def __taklization(self,word):
@@ -86,7 +92,7 @@ class TalkaGenerator(object):
             else:
                 phoneRemoved.append(takla)
 
-        self.data["standard"]=phoneRemoved
+        self.data["standard"]=phoneRemoved# operations maps
 
     def __vowelChange(self,x):
         '''
@@ -99,54 +105,58 @@ class TalkaGenerator(object):
         
         # make list
         x=list(x)
-        # start
-        if x[0] in maps.keys() and x[1] not in self.vowels:
-            x[0]=random.choice([maps[x[0]],x[0]])
-        # end
-        if x[-1] in maps.keys() and x[-2] not in self.vowels:
-            x[-1]=random.choice([maps[x[-1]],x[-1]])
-        # middle
-        maps={"a":"u",
-                "e":"a",
-                "i":"e",
-                "o":"a",
-                "u":"a"}
         
-        for idx,c in enumerate(x):
-            # for middle ones
-            if idx>0 and idx<len(x)-1:
-                # consecutive vowel
-                if x[idx-1] not in self.vowels and x[idx+1] not in self.vowels and c in maps.keys():
-                    x[idx]=random.choice([maps[c],c]) 
+        if len(x)>1:
+            # start
+            if x[0] in maps.keys() and x[1] not in self.vowels:
+                x[0]=random.choice([maps[x[0]],x[0]])
+            # end
+            if x[-1] in maps.keys() and x[-2] not in self.vowels:
+                x[-1]=random.choice([maps[x[-1]],x[-1]])
+            # middle
+            maps={"a":"u",
+                    "e":"a",# operations maps
+                    "i":"e",
+                    "o":"a",
+                    "u":"a"}
+            
+            for idx,c in enumerate(x):
+                # for middle ones
+                if idx>0 and idx<len(x)-1:
+                    # consecutive vowel
+                    if x[idx-1] not in self.vowels and x[idx+1] not in self.vowels and c in maps.keys():
+                        x[idx]=random.choice([maps[c],c]) 
 
-        # double
-        x="".join(x)
-        maps={"aa":"a",
-                "ai":"ae",
-                "ao":"au",
-                "au":"ao",
-                "ee":"e",
-                "ei":"ae",
-                "eo":"eu",
-                "eu":"eo",
-                "ie":"iye",
-                "io":"eo",
-                "ii":"i",
-                "iu":"ew",
-                "oa":"ua",
-                "oe":"oi",
-                "oi":"oy",
-                "oo":"o",
-                "ou":"ow",
-                "ua":"o",
-                "ui":"e",
-                "uo":"o",
-                "uu":"u"}
+            # double
+            x="".join(x)
+            maps={"aa":"a",
+                    "ai":"ae",
+                    "ao":"au",
+                    "au":"ao",
+                    "ee":"e",
+                    "ei":"ae",
+                    "eo":"eu",
+                    "eu":"eo",
+                    "ie":"iye",
+                    "io":"eo",
+                    "ii":"i",
+                    "iu":"ew",
+                    "oa":"ua",
+                    "oe":"oi",
+                    "oi":"oy",
+                    "oo":"o",
+                    "ou":"ow",
+                    "ua":"o",
+                    "ui":"e",
+                    "uo":"o",
+                    "uu":"u"}
 
-        for _map in maps.keys():
-            x.replace(_map,random.choice([maps[_map],_map]))
+            for _map in maps.keys():
+                x.replace(_map,random.choice([maps[_map],_map]))
 
-        return x
+            return x
+        else:
+            return random.choice([maps[x[0]],x[0]])
 
         
     def __shotenWords(self,x):
@@ -172,26 +182,135 @@ class TalkaGenerator(object):
         for idx,c in enumerate(x):
             if idx>0 and c=="h":
                 x[idx]=random.choice(["","h"])
-        x=[i for i in x if i is not ""]
+        x="".join(x)
+        return x
+    
+    def __vowelRemoval(self,x):
+        '''
+            removes the vowels but at random
+        '''
+        # make list
+        x=list(x)
+        for idx,c in enumerate(x):
+            if idx>0 and idx!=len(x)-1:
+                if c in self.vowels and np.random.rand(1)<0.5:
+                    x[idx]=None
+        x=[i for i in x if i is not None]
         x="".join(x)
         return x
     
     
-    def createTakla(self,sentence):
+    def __replaceConsonants(self,x):
+        '''
+            replace consonants
+        '''
+        maps_alt={"c":["s","ss"],
+                  "ch":["s","ss"],
+                  "s":["c","ch"]}
+                  
+        maps={"j":"z",
+              "ph":"f",
+              "z":"j",
+              "f":"ph"}
+        # optional replacements
+        _x=[]
+        for c in x:
+            if c not in maps_alt.keys():
+                _x.append(c)
+            else:
+                _x.append(random.choice(maps_alt[c]))
+        x="".join(_x)
+
+        # directs
+        _x=[]
+        for c in x:
+            if c not in list(maps.keys()):
+                _x.append(c)
+            else:
+                _x.append(random.choice([c,maps[c]]))
+        x="".join(_x)
+
+        return x 
+
+
+    def createTakla(self,
+                    sentence,
+                    execute_single_ops=False,
+                    randomize_ops=False,
+                    operations=["VC","THR","RPSS"]):
         '''
             creates takla from a given sentence
+            args:
+                sentence            :   a pure bangla sentence 
+                execute_single_ops  :   execute separate operations separately
+                randomize_ops       :   randomly select operations 
+                                        This flag overides selective operations data
+                operations          :   the operations to be done: 
+                                        allowed operations:VC,VR,THR,RPSS,SHORT
+
         '''
+        results={}
         self.sentence=sentence
+        results["bangla"]=sentence
         # convert standard
         self.__convertStandard()
+        results["standard_takla"]=" ".join(self.data.standard.tolist())
         # remove ending phone
-        self.__removeEndingPhone()
+        # self.__removeEndingPhone()
+        
+        
+        
         # initial vowel 1st degree
-        self.data["FVC"]=self.data.standard.apply(lambda x: self.__vowelChange(x))
-        # shorten the word
-        self.data["Short"]=self.data.standard.apply(lambda x: self.__shotenWords(x))
-        # h removal
-        self.data["Hremoved"]=self.data.standard.apply(lambda x: self.__removeH(x))
+        if execute_single_ops:
+            self.data["VC"]=self.data.standard.apply(lambda x: self.__vowelChange(x))
+            results["vowel_change"]=" ".join(self.data.VC.tolist())
+            
+            # vowel removal
+            self.data["VR"]=self.data.standard.apply(lambda x: self.__vowelRemoval(x))
+            results["vowel_removal"]=" ".join(self.data.VR.tolist())
+
+            # h removal
+            self.data["THR"]=self.data.standard.apply(lambda x: self.__removeH(x))
+            results["h_reduction"]=" ".join(self.data.THR.tolist())
+
+            # replace consonants
+            self.data["RPSS"]=self.data.standard.apply(lambda x: self.__replaceConsonants(x))
+            results["consonant_replacement"]=" ".join(self.data.RPSS.tolist())
+
+            # shorten the word
+            self.data["SHORT"]=self.data.standard.apply(lambda x: self.__shotenWords(x))
+            results["pure_shorthand"]=" ".join(self.data.SHORT.tolist())
+            
+        if randomize_ops:
+            colname="randomComb"
+            self.data[colname]=self.data.standard.tolist()
+            
+            # operations
+            ops=list(self.ops_map.keys())
+            _keys=[]
+            max_len=random.randint(1,len(ops))
+ 
+            # shuffle
+            random.shuffle(ops)
+            ops=ops[:max_len]
+
+            for _key in ops:    
+                _keys.append(_key)
+                op=self.ops_map[_key]
+                self.data[colname]=self.data[colname].apply(lambda x:op(x))
+                
+            res_name="comb_"+"_".join(_keys)
+            results[res_name]=" ".join(self.data[colname].tolist())
+
+        else:
+            colname="comb_"+"_".join(operations)
+            self.data[colname]=self.data.standard.tolist()
+            for _key in operations:
+                op=self.ops_map[_key]
+                self.data[colname]=self.data[colname].apply(lambda x:op(x))
+            results[colname]=" ".join(self.data[colname].tolist())
+        return results
+
         
         
     
