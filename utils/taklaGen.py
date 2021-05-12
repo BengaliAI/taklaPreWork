@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import json
 
-from gps import GraphemeParser
-from wordCleaner import WordCleaner 
+from .gps import GraphemeParser
+from .wordCleaner import WordCleaner 
 #---------------------------------------------------------------------------------------
 # takla generator class
 #---------------------------------------------------------------------------------------
@@ -156,7 +156,10 @@ class TalkaGenerator(object):
 
             return x
         else:
-            return random.choice([maps[x[0]],x[0]])
+            if x[0] in self.vowels:
+                return random.choice([maps[x[0]],x[0]])
+            else:
+                return x[0]
 
         
     def __shotenWords(self,x):
