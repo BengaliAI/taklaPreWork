@@ -117,13 +117,4 @@ def clickLink(link):
         except Exception as e2:
             pass
 
-# ---------------------------------------------------------            
-
-def getLinks(element):
-    '''
-        get all the attributed (a--Role links)
-    '''
-    if check(element,XPATHS.LINK):         
-        return element.find_elements_by_xpath(XPATHS.LINK)
-    
-# ---------------------------------------------------------            
+            

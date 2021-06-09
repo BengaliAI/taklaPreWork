@@ -346,9 +346,24 @@ class WordCleaner(object):
             (a)একএে==(b)একত্রে-->False
                 (a) breaks as ['এ', 'ক', 'এ', 'ে']
                 (b) breaks as ['এ', 'ক', 'ত', '্', 'র', 'ে']
-
+            # Example-2:
+            (a)একএ==(b)একত্র-->False
+                (a) breaks as ['এ', 'ক', 'এ']
+                (b) breaks as ['এ', 'ক', 'ত', '্', 'র']
+                
         '''
         try:
+            # THE WIERDEST THING I HAVE SEEN
+            for idx,d in enumerate(self.decomp):
+                # single case 
+                if d=='এ' and idx>0:
+                    self.decomp[idx]='ত'+'্'+'র'
+            self.decomp=[ch for ch in self.decomp]
+            '''
+                 self.decomp[idx-1:idx]='ত', '্', 'র'
+                 this replacement does not work 
+            '''
+
             for idx,d in enumerate(self.decomp):
                 # if the current one is a VD and the previous char is a modifier or vowel
                 if  d in self.vowel_diacritics and self.decomp[idx-1] in self.vowels+self.modifiers:
@@ -358,7 +373,8 @@ class WordCleaner(object):
                          self.decomp[idx]=None
                     # normalization case
                     else:
-                        self.decomp[idx-1:idx]='ত', '্', 'র'
+                        self.decomp[idx]='ত'+'্'+'র'
+            self.decomp=[ch for ch in self.decomp]
         except Exception as e:
             pass 
 

@@ -56,6 +56,9 @@ class TestWordCleaner(unittest.TestCase):
         self.assertEqual(WC.clean('উুলু'),'উলু')
         ## (a)একএে==(b)একত্রে
         self.assertEqual(WC.clean('একএে'),'একত্রে')
+        ## (a)একএ==(b)একত্র
+        self.assertEqual(WC.clean('একএ'),'একত্র')
+        
         ### case: normalize to+hosonto
         ## (a)উত্স==(b)উৎস
         self.assertEqual(WC.clean('উত্স'),'উৎস')
