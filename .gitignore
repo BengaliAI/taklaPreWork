@@ -131,3 +131,4 @@ scrapper/posts.json
 debug.ipynb 
 __extra__/**
 .vscode/*
+scrapper/.vscode/*
